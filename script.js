@@ -69,114 +69,95 @@ document.addEventListener("DOMContentLoaded", () => {
                     { pergunta: "Que aplicação da energia nuclear ajuda na segurança alimentar?", respostas: ["Radiação para esterilizar alimentos", "Uso de gado radiativo", "Clonagem de vegetais", "Controle de fertilizantes"], correta: 0 }
                 ]
             };
-            
-                let allCards = [];
-                let cardNumber = 1;
-            
-                function criarCarta(nivel, perguntaObj, numero) {
-                    const card = document.createElement("div");
-                    card.classList.add("card", nivel);
-            
-                    const cardInner = document.createElement("div");
-                    cardInner.classList.add("card-inner");
-            
-                    const cardFront = document.createElement("div");
-                    cardFront.classList.add("card-front");
-            
-                    // Adicionar o número da carta
-                    const cardNumberEl = document.createElement("div");
-                    cardNumberEl.classList.add("card-number");
-                    cardNumberEl.innerText = `Carta ${numero}`;
-                    
-                    // Adicionar a logo
-                    const logoContainer = document.createElement("div");
-                    logoContainer.classList.add("logo-container");
-                    const logoImage = document.createElement("img");
-                    logoImage.src = "images/logo.png";
-                    logoImage.alt = "Apollo Studios";
-                    logoImage.classList.add("logo-image");
-            
-                    const logoText = document.createElement("div");
-                    logoText.classList.add("logo-text");
-                    logoText.innerText = "Apollo Studios";
-            
-                    // Anexar elementos de logo e número da carta à frente da carta
-                    cardFront.appendChild(cardNumberEl);
-                    logoContainer.appendChild(logoImage);
-                    logoContainer.appendChild(logoText);
-                    cardFront.appendChild(logoContainer);
-            
-                    const cardBack = document.createElement("div");
-                    cardBack.classList.add("card-back");
-            
-                    const questionEl = document.createElement("div");
-                    questionEl.classList.add("question");
-                    questionEl.innerText = perguntaObj.pergunta;
-            
-                    const answersEl = document.createElement("div");
-                    answersEl.classList.add("answers");
-            
-                    perguntaObj.respostas.forEach((resposta, index) => {
-                        const answerButton = document.createElement("button");
-                        answerButton.innerText = resposta;
-            
-                        answerButton.addEventListener("click", () => {
-                            if (index === perguntaObj.correta) {
-                                answerButton.classList.add("correct");
-                            } else {
-                                answerButton.classList.add("incorrect");
-                                const correctButton = answersEl.children[perguntaObj.correta];
-                                correctButton.classList.add("correct");
-                            }
-                            setTimeout(() => {
-                                card.classList.remove("flipped");
-                                Array.from(answersEl.children).forEach(btn => {
-                                    btn.classList.remove("correct", "incorrect");
-                                });
-                            }, 1500);
-                        });
-            
-                        answersEl.appendChild(answerButton);
-                    });
-            
-                    cardBack.appendChild(questionEl);
-                    cardBack.appendChild(answersEl);
-            
-                    cardInner.appendChild(cardFront);
-                    cardInner.appendChild(cardBack);
-                    card.appendChild(cardInner);
-            
-                    card.addEventListener("click", () => {
-                        if (!card.classList.contains("flipped")) {
-                            card.classList.add("flipped");
-                        }
-                    });
-            
-                    return card;
+          
+    function embaralhar(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+    
+    function criarCarta(nivel, perguntaObj) {
+        const card = document.createElement("div");
+        card.classList.add("card", nivel);
+    
+        const cardInner = document.createElement("div");
+        cardInner.classList.add("card-inner");
+    
+        const cardFront = document.createElement("div");
+        cardFront.classList.add("card-front");
+    
+        const logoContainer = document.createElement("div");
+        logoContainer.classList.add("logo-container");
+        const logoImage = document.createElement("img");
+        logoImage.src = "imagens/logo.png";
+        logoImage.alt = "Apollo Studios";
+        logoImage.classList.add("logo-image");
+    
+        const logoText = document.createElement("div");
+        logoText.classList.add("logo-text");
+        logoText.innerText = "Apollo Studios";
+    
+        logoContainer.appendChild(logoImage);
+        logoContainer.appendChild(logoText);
+        cardFront.appendChild(logoContainer);
+    
+        const cardBack = document.createElement("div");
+        cardBack.classList.add("card-back");
+    
+        const questionEl = document.createElement("div");
+        questionEl.classList.add("question");
+        questionEl.innerText = perguntaObj.pergunta;
+    
+        const answersEl = document.createElement("div");
+        answersEl.classList.add("answers");
+    
+        const respostasComIndice = perguntaObj.respostas.map((resposta, index) => ({ resposta, index }));
+        embaralhar(respostasComIndice);
+    
+        respostasComIndice.forEach(({ resposta, index }) => {
+            const answerButton = document.createElement("button");
+            answerButton.innerText = resposta;
+    
+            answerButton.addEventListener("click", () => {
+                if (index === perguntaObj.correta) {
+                    answerButton.classList.add("correct");
+                } else {
+                    answerButton.classList.add("incorrect");
                 }
-            
-                function preencherTabuleiro() {
-                    const niveis = ["dificil", "medio", "facil"];
-                    let cards = [];
-                    
-                    niveis.forEach(nivel => {
-                        perguntas[nivel].forEach(perguntaObj => {
-                            cards.push(criarCarta(nivel, perguntaObj, cardNumber));
-                            cardNumber++;
-                        });
-                    });
-            
-                    allCards = cards;
-                    atualizarTabuleiro();
-                }
-            
-                function atualizarTabuleiro() {
-                    gameBoard.innerHTML = '';
-                    allCards.forEach(card => {
-                        gameBoard.appendChild(card);
-                    });
-                }
-            
-                preencherTabuleiro();
             });
-            
+    
+            answersEl.appendChild(answerButton);
+        });
+    
+        cardBack.appendChild(questionEl);
+        cardBack.appendChild(answersEl);
+    
+        cardInner.appendChild(cardFront);
+        cardInner.appendChild(cardBack);
+        card.appendChild(cardInner);
+        card.addEventListener("click", () => {
+            card.classList.toggle("flipped");
+        });
+    
+        gameBoard.appendChild(card);
+    }
+    
+    function carregarCartas() {
+        gameBoard.innerHTML = "";
+    
+        let allCards = [
+            ...perguntas.dificil.map(pergunta => ({ nivel: "dificil", ...pergunta })),
+            ...perguntas.medio.map(pergunta => ({ nivel: "medio", ...pergunta })),
+            ...perguntas.facil.map(pergunta => ({ nivel: "facil", ...pergunta }))
+        ];
+
+        embaralhar(allCards);
+    
+        allCards.forEach(({ nivel, pergunta, respostas, correta }) => {
+            criarCarta(nivel, { pergunta, respostas, correta });
+        });
+    }
+    
+    carregarCartas();
+});
